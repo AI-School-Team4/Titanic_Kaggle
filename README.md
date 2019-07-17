@@ -8,6 +8,9 @@
 |na         |load_train_data()|          |
 |na         |load_test_data() |          |
 |na         |main()           |          |
+|na         |data_target_split()|        |
+|na         |delete_na_row()  |          |
+
 
 
 
