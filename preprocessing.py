@@ -19,6 +19,10 @@ def fill_na_with_median():
 def delete_na_row():
     pass
 
+def data_target_split():
+    data = None
+    target = None
+    return data, target
 
 
 # Temporary main method for debugging
