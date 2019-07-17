@@ -65,7 +65,10 @@ def load_test_target(dtype='Series'): # dtype == 'Series' or 'DataFrame'
         raise ValueError('Invalid dtype')
         return None
 
-def fill_na_with_mean(data):
+def fill_median(data):
+    pass
+
+def fill__mean(data):
     pass
 
 def delete_na_row(data):
