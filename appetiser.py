@@ -4,8 +4,6 @@ import pandas as pd
 
 # headers
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
-
-#==================================================
 class Titanic:
     '''
     docstring
@@ -67,10 +65,40 @@ def load_test_target(dtype='Series'): # dtype == 'Series' or 'DataFrame'
         return None
 
 def fill_median(data):
-    pass
+    # type(data) == DataFrame, dtype == int, float
+    size = int(data.size / len(data.columns))
+    
+    for icol in range(len(data.columns)):
+        index_to_fill = []
+        value = []
+        for irow in range(size):
+            val = data.iloc[irow, icol]
+            if pd.isnull(val):
+                index_to_fill.append(irow)
+            else:
+                value.append(val)
+        median = np.median(value)
+        for irow in index_to_fill:
+            data.iloc[irow, icol] = median
+    return data
 
 def fill_mean(data):
-    pass
+    # type(data) == DataFrame, dtype == int, float
+    size = int(data.size / len(data.columns))
+    
+    for icol in range(len(data.columns)):
+        index_to_fill = []
+        value = []
+        for irow in range(size):
+            val = data.iloc[irow, icol]
+            if pd.isnull(val):
+                index_to_fill.append(irow)
+            else:
+                value.append(val)
+        mean = np.mean(value)
+        for irow in index_to_fill:
+            data.iloc[irow, icol] = mean
+    return data
 
 def delete_na_row(data):
     # type(data) == DataFrame
