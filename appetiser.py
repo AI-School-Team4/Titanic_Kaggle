@@ -4,6 +4,8 @@ import pandas as pd
 
 # headers
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
+
+#==================================================
 class Titanic:
     '''
     docstring
