@@ -61,6 +61,7 @@ def load_test_target(dtype='Series'): # dtype == 'Series' or 'DataFrame'
     # DataFrame
     elif dtype == 'DataFrame' or dtype == 'dataframe':
         return test_target
+    # Error
     else:
         raise ValueError('Invalid dtype')
         return None
@@ -68,7 +69,7 @@ def load_test_target(dtype='Series'): # dtype == 'Series' or 'DataFrame'
 def fill_median(data):
     pass
 
-def fill__mean(data):
+def fill_mean(data):
     pass
 
 def delete_na_row(data):
