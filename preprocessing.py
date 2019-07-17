@@ -19,9 +19,9 @@ def fill_na_with_median():
 def delete_na_row():
     pass
 
-def data_target_split():
-    data = None
-    target = None
+def data_target_split(unseparated):
+    data = unseparated.drop('Survived', axis=1)
+    target = unseparated['Survived']
     return data, target
 
 
