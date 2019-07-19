@@ -6,7 +6,7 @@
 |analysis      | maindish.py  |
 |drawing       | menu.py      |
 |main          | restaurant.py|
-|about 80% accuracy           |
+|about 84% accuracy           |
 
 ## Variable names
 
