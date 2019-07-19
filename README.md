@@ -1,5 +1,12 @@
 # Titanic_Kaggle
 
+JehunYoo
+preprocessing : appetiser.py
+analysis      : maindish.py
+drawing       : menu.py
+main          : restaurant.py
+about 80% accuracy
+
 ## Variable names
 
 ### preprocessing.py
