@@ -1,6 +1,7 @@
 # Titanic_Kaggle
 
-|JehunYoo                     |
+|JehunYoo      |              |
+|--------------|--------------|
 |preprocessing | appetiser.py |
 |analysis      | maindish.py  |
 |drawing       | menu.py      |
