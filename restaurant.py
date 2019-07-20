@@ -9,7 +9,8 @@ import appetiser as ap
 import maindish as md
 import menu
 from appetiser import load_titanic
-
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.metrics import accuracy_score
 
 # preprocessing data 1
 '''
@@ -37,9 +38,9 @@ label_apple.to_csv("data/target.csv", index=False)
 # hyperparameter control
 inodes = 12
 hnodes = 300
-hnumber = 3
+hnumber = 2
 onodes = 2
-learning_rate = 0.01
+learning_rate = 0.05
 epoch = 15
 
 model_apple = md.BinaryClassification(inodes, hnodes, hnumber, onodes, learning_rate)
@@ -50,3 +51,9 @@ accuracy = model_apple.accuracy_score(label_apple, predicted)
 
 print(predicted)
 print('accuracy : {0} ==> {1:0.2f}%'.format(accuracy, accuracy * 100))
+
+dt_clf = DecisionTreeClassifier()
+dt_clf.fit(apple, label_apple)
+predicted = dt_clf.predict(apple)
+accuracy = accuracy_score(label_apple, predicted)
+print('accuracy from sklearn DecisionTreeClassifier : {0:0.2f}%'.format(accuracy * 100))

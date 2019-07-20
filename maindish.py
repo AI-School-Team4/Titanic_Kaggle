@@ -9,12 +9,12 @@ from scipy.special import softmax as Softmax
 
 class BinaryClassification:
     
-    def __init__(self, inodes, hnodes, hnumber, onodes, learning_rate=0.01):
+    def __init__(self, inodes, hnodes, hnumber, onodes, eta=0.01):
         self.inodes = inodes
         self.hnodes = hnodes
         self.hnumber = hnumber
         self.onodes = onodes
-        self.learning_rate = learning_rate
+        self.eta = eta
         self.activation = lambda x : Sigmoid(x)
         self.weight = [np.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.inodes))] + [np.random.normal(0.0, pow(self.hnodes, -0.5), (self.hnodes, self.hnodes)) for _ in range(self.hnumber - 1)] + [np.random.normal(0.0, pow(self.onodes, -0.5), (self.onodes, self.hnodes))] 
 
@@ -56,9 +56,9 @@ class BinaryClassification:
                 allerror.append(herror)
             
             # Gradient Descent
-            self.weight[-1] = np.add(self.weight[-1], self.learning_rate * np.dot((error * output * (1.0 - output)), alldata[-1].T))
+            self.weight[-1] = np.add(self.weight[-1], self.eta * np.dot((error * output * (1.0 - output)), alldata[-1].T))
             for h_num in range(1, self.hnumber+1):
-                self.weight[self.hnumber - h_num] = np.add(self.weight[self.hnumber - h_num], self.learning_rate * np.dot((allerror[h_num] * alldata[-h_num] * (1.0 - alldata[-h_num])), alldata[-h_num - 1].T))
+                self.weight[self.hnumber - h_num] = np.add(self.weight[self.hnumber - h_num], self.eta * np.dot((allerror[h_num] * alldata[-h_num] * (1.0 - alldata[-h_num])), alldata[-h_num - 1].T))
 
         pass
 

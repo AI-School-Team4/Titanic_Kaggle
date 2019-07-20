@@ -47,14 +47,15 @@ class dessert:
 def check_missing_data(data, ratio=False):
     '''
     check how much missing data is
-    data : DataFrame, Series | ratio : bool
+    data : DataFrame, Series
+    ratio : bool
     return Series
     '''
-    ms_series = data.isnull().sum()
+    msdata = data.isnull().sum()
     if ratio:
-        return ms_series / data.iloc[:, 0].size
+        return msdata / data.iloc[:, 0].size
     else:
-        return ms_series
+        return msdata
 
 def error_not_series_with_na(data, skipna=False):
     if type(data) != type(pd.Series()):
