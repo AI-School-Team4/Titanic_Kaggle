@@ -40,10 +40,10 @@ inodes = 12
 hnodes = 300
 hnumber = 2
 onodes = 2
-learning_rate = 0.05
+eta = 0.05
 epoch = 15
 
-model_apple = md.BinaryClassification(inodes, hnodes, hnumber, onodes, learning_rate)
+model_apple = md.BinaryClassification(inodes, hnodes, hnumber, onodes, eta)
 for e in range(epoch):
     model_apple.fit(apple, label_apple)
 predicted = model_apple.predict(apple)

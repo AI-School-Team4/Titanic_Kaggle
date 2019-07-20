@@ -9,7 +9,7 @@ from scipy.special import softmax as Softmax
 
 class BinaryClassification:
     
-    def __init__(self, inodes, hnodes, hnumber, onodes, eta=0.01):
+    def __init__(self, inodes, hnodes, hnumber, onodes=2, eta=0.01):
         self.inodes = inodes
         self.hnodes = hnodes
         self.hnumber = hnumber
