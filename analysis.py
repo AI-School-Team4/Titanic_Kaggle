@@ -8,7 +8,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold
-from preprocessing import preprocessor, data_target_split
+from preprocessing import preprocessor
 
 
 # Gaussian Naive Bayes
@@ -79,13 +79,19 @@ def ensemble_voting(X_train, Y_train, nvc, svc, rfc):
 
 def main():
 
-    dataset = pd.read_csv("./data/train.csv")
+    train_dataset = pd.read_csv("./data/train.csv")
+    test_dataset = pd.read_csv("./data/test.csv")
 
-    # 데이터를 전처리합니다.
-    X_train, Y_train = preprocessor(dataset, fill_age_with='advanced_median', dropPassengerID=True, dropName=True)
-    print(X_train)
-    print(Y_train)
-
+    # pre-processing
+    X_train, Y_train, test = preprocessor(train_dataset, test_dataset, fill_age_with='median', fill_cabin_with='mapping_median',
+                                          dropPassengerID=True, dropName=False)
+    print('xtrain-------------------------\n')
+    print(X_train.head())
+    print('ytrain---------------------------\n')
+    print(Y_train.head())
+    print('test---------------------------\n')
+    print(test)
+    print(test.columns)
 
 if __name__ == "__main__":
     with warnings.catch_warnings():

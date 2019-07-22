@@ -10,7 +10,7 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_sp
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import export_graphviz, DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-import pydot
+#import pydot
 import warnings
 warnings.filterwarnings("ignore")
 

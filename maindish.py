@@ -103,7 +103,7 @@ class BinaryClassification:
 
 def main():
     '''
-    TODO
+    # TODO
     1. HoldOut
     2. KFold
     '''

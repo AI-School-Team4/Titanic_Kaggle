@@ -5,64 +5,21 @@ from collections import Counter
 # headers
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
 
-def fill_na_with_median(train, test):
-    train['Age'].fillna(train.groupby('Title')['Age'].transform('median'), inplace=True)
-    test['Age'].fillna(test.groupby('Title')['Age'].transform('median'), inplace=True)
-    
-    return train,test
-
-def mapping(dataset, train, test):
-    title_mapping = {'Mr':0,'Miss':1,'Mrs':2,'Master':3,'Rev':3,'Dr':3,'Col':3,'Major':3,'Mlle':3,'Countess':3,'Ms':3,'Lady':3,'Jonkheer':3,'Don':3,'Dona':3,'Mme':3,'Capt':3,'Sir':3}
-    sex_mapping = {'male':0,'female':1}
-    embarked_mapping = {'S':0,'C':1,'Q':2}
-    cabin_mapping = {'A':0,'B':0.4,'C':0.8,'D':1.2,'E':1.6,'G':2.4,'T':2.8}
-    family_mapping = {1:0,2:0.4,3:0.8,4:1.2,5:1.6,6:2,7:2.4,8:2.8,9:3.2,10:3.6,11:4}
-    
-    for data in dataset:
-        data['Title'] = data['Name'].str.extract('([A-Za-z]+)\.', expand=False)
-        data['Embarked'] = data['Embarked'].fillna('S')
-        data['Cabin'] = data['Cabin'].str[:1]
-        
-    train['FamilySize'] = train['SibSp'] + train['Parch']+1
-    test['FamilySize'] = test['SibSp'] + test['Parch']+1
-    
-    for data in dataset:
-        data['Title'] = data['Title'].map(title_mapping)
-        data['Sex'] = data['Sex'].map(sex_mapping)
-        data['Embarked'] = data['Embarked'].map(embarked_mapping)
-        data['Cabin'] = data['Cabin'].map(cabin_mapping)
-        data['FamilySize'] = data['FamilySize'].map(family_mapping)
-    
-    train.drop('Name',axis=1,inplace=True)
-    test.drop('Name',axis=1,inplace=True)
-    feature_drop = ['Ticket', 'SibSp', 'Parch']
-    train = train.drop(feature_drop, axis=1)
-    test = test.drop(feature_drop, axis=1)
-    
-    return dataset, train, test
-
-def data_target_split(unseparated):
-    unseparated["Survived"] = unseparated["Survived"].astype(int)
-    data = unseparated.drop('Survived', axis=1)
-    target = unseparated['Survived']
-    return data, target
-
-# Undesirable
-def delete_na_row():
-    # Cant delete 'Cabin' Na rows. too many
-    pass
-
+sex_mapping = {'male':0,'female':1}
+title_mapping = {"Master": 0, "Miss": 1, "Ms": 1, "Mme": 1, "Mlle": 1, "Mrs": 1, "Mr": 2, "Rare": 3}
+cabin_mapping = {'A':0,'B':0.4,'C':0.8,'D':1.2,'E':1.6,'G':2.4,'T':2.8}
+embarked_mapping = {'S':0,'C':1,'Q':2}
 
 '''
 NA inclued features:
     Age, Cabin, Embarked
 '''
 
-
-def preprocessor(dataset, fill_age_with, dropPassengerID=False, dropName=False):
+def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=True, dropName=True):
     """
     @:param
-    (DataFrame) dataset
+    (DataFrame) train DF
+    (DataFrame) test DF
     (String) fill_age_with => {median, advanced_median, something_else}
     (bool) dropPassengerID => default == False
     (bool) dropName        => default == False
@@ -76,7 +33,9 @@ def preprocessor(dataset, fill_age_with, dropPassengerID=False, dropName=False):
 
     """
 
-    train_len = len(dataset)
+    train_len = len(train)
+    # Concatenate train and test dataFrame
+    dataset = pd.concat(objs=[train, test], axis=0).reset_index(drop=True)
 
     # Fill empty and NaNs values with NaN
     dataset = dataset.fillna(np.nan)
@@ -84,29 +43,39 @@ def preprocessor(dataset, fill_age_with, dropPassengerID=False, dropName=False):
     ########
     # Fare #
     ########
-    # scaling Fare
-    # Apply log to Fare to reduce skewness distribution
-    dataset["Fare"] = dataset["Fare"].map(lambda i: np.log(i) if i > 0 else 0)
+    # scaling Fare by applying log
+    dataset["Fare"] = dataset["Fare"].map(lambda x: np.log(x) if x > 0 else 0)
+
+    # TODO : 로그스케일로 바꿨을때 Binning을 한다면 그의 범위를 어떻게 나누면 좋을까
+    '''
+    for data in dataset:
+        data.loc[data['Fare'] <= 17, 'Fare'] = 0,
+        data.loc[(data['Fare'] > 17) & (data['Fare'] <= 30), 'Fare'] = 1,
+        data.loc[(data['Fare'] > 30) & (data['Fare'] <= 100),'Fare'] = 2,
+        data.loc[data['Fare'] > 100, 'Fare'] = 3
+    '''
 
     ########
     # Sex  #
     ########
-    # convert Sex into categorical value 0 for male and 1 for female
-    dataset["Sex"] = dataset["Sex"].map({"male": 0, "female":1})
+    # convert Sex into dict val 0 for male and 1 for female
+    dataset["Sex"] = dataset["Sex"].map(sex_mapping)
 
     ########
     # Age  #
     ########
     # Index of NaN age rows
-    index_NaN_age = list(dataset["Age"][dataset["Age"].isnull()].index)
+    index_to_fill_age = list(dataset["Age"][dataset["Age"].isnull()].index)
 
-    # TODO : normal median
     if fill_age_with == 'median':
-        pass
+        # normal median
+        for i in index_to_fill_age:
+            median_age = dataset["Age"].median()
+            dataset['Age'].iloc[i] = median_age
 
-    elif fill_age_with == 'advanced_median':
+    elif fill_age_with == 'advanced_median_1':
         # Fill Age with the median age of similar rows according to Pclass, Parch and SibSp
-        for i in index_NaN_age:
+        for i in index_to_fill_age:
             age_med = dataset["Age"].median()
             age_pred = dataset["Age"][((dataset['SibSp'] == dataset.iloc[i]["SibSp"]) & (dataset['Parch'] == dataset.iloc[i]["Parch"]) & (dataset['Pclass'] == dataset.iloc[i]["Pclass"]))].median()
             if not np.isnan(age_pred) :
@@ -114,23 +83,51 @@ def preprocessor(dataset, fill_age_with, dropPassengerID=False, dropName=False):
             else :
                 dataset['Age'].iloc[i] = age_med
 
-    # TODO : what would be the other possible metrics
-    elif fill_age_with == 'something_else':
-        pass
+    # TODO : check if it's efficient enough
+    elif fill_age_with == 'advanced_median_2':
+        dataset['Age'].fillna(dataset.groupby('Title')['Age'].transform('median'), inplace=True)
+
+
 
     ########
     # Name #
     ########
+    # Extract Title from Name
+    extracted_title = [i.split(",")[1].split(".")[0].strip() for i in dataset["Name"]]
+    dataset["Title"] = pd.Series(extracted_title)
+
+    # Convert to dict val; Title
+    dataset["Title"] = dataset["Title"].replace(
+        ['Lady', 'the Countess', 'Countess', 'Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'],
+        'Rare')
+
+    # unique titles
+    # ['Mr', 'Mrs', 'Miss', 'Master', 'Don', 'Rev', 'Dr', 'Mme', 'Ms',
+    #  'Major', 'Lady', 'Sir', 'Mlle', 'Col', 'Capt', 'Countess', 'Jonkheer']
+
+    dataset["Title"] = dataset["Title"].map(title_mapping).astype(int)
+
     if dropName:
         # Drop Name variable
         dataset.drop(labels=["Name"], axis=1, inplace=True)
 
+
     #########
     # Cabin #
     #########
-    # Replace the Cabin number by the type of cabin 'X' if not
-    dataset["Cabin"] = pd.Series([i[0] if not pd.isnull(i) else 'X' for i in dataset['Cabin'] ])
-    dataset = pd.get_dummies(dataset, columns = ["Cabin"],prefix="Cabin")
+    if fill_cabin_with == 'X':
+        # Replace the Cabin number by the type of cabin 'X' if not
+        dataset["Cabin"] = pd.Series([i[0] if not pd.isnull(i) else 'X' for i in dataset['Cabin']])
+        dataset = pd.get_dummies(dataset, columns = ["Cabin"],prefix="Cabin")
+
+    elif fill_cabin_with == 'mapping_median':
+        # Cabin mapping
+        dataset['Cabin'] = dataset['Cabin'].str[:1]
+        dataset['Cabin'] = dataset['Cabin'].map(cabin_mapping)
+
+        # Fill with median
+        # Todo : dangerous???
+        dataset['Cabin'].fillna(dataset.groupby('Pclass')['Cabin'].transform('median'), inplace=True)
 
 
     ###############
@@ -139,32 +136,77 @@ def preprocessor(dataset, fill_age_with, dropPassengerID=False, dropName=False):
     if dropPassengerID:
         # Drop useless variables
         dataset.drop(labels = ["PassengerId"], axis = 1, inplace = True)
-        dataset = dataset[:train_len]
+
+
+    ##########
+    # Family #
+    ##########
+    # Create a family size descriptor from SibSp and Parch
+    dataset["Fsize"] = dataset["SibSp"] + dataset["Parch"] + 1
+    # Create new feature of family size
+    dataset['Single'] = dataset['Fsize'].map(lambda s: 1 if s == 1 else 0)
+    dataset['SmallF'] = dataset['Fsize'].map(lambda s: 1 if s == 2 else 0)
+    dataset['MedF'] = dataset['Fsize'].map(lambda s: 1 if 3 <= s <= 4 else 0)
+    dataset['LargeF'] = dataset['Fsize'].map(lambda s: 1 if s >= 5 else 0)
+
 
     ############
     # Embarked #
     ############
-    # TODO : ideas?
-    pass
+    '''
+    More than half of the first, second and third class people are come from S.
+    So fill with S.
+    '''
+    dataset['Embarked'] = dataset['Embarked'].fillna('S')
+    dataset['Embarked'] = dataset['Embarked'].map(embarked_mapping)
 
     ###########
     # Ticket  #
     ###########
-    # TODO : ideas?
-    pass
+    # Idea: Extract ticket prefix.
+    # When there is no prefix replace with X
+    Ticket = []
+    for i in list(dataset.Ticket):
+        if not i.isdigit():
+            Ticket.append(i.replace(".", "").replace("/", "").strip().split(' ')[0])  # Take prefix
+        else:
+            Ticket.append("X")
+
+    dataset["Ticket"] = pd.Series(Ticket)
+
+    ###########
+    # Dummies #
+    ###########
+    dataset = pd.get_dummies(dataset, columns=["Title"])
+    dataset = pd.get_dummies(dataset, columns=["Embarked"], prefix="Em")
+    dataset = pd.get_dummies(dataset, columns=["Cabin"], prefix="Cabin")
+    dataset = pd.get_dummies(dataset, columns=["Ticket"], prefix="T")
+    dataset["Pclass"] = dataset["Pclass"].astype("category")
+    dataset = pd.get_dummies(dataset, columns=["Pclass"], prefix="Pc")
+
+    ###########
+    # The End #
+    ###########
+    # Split concatenated train and test DataFrame
+    train = dataset[:train_len]
+    test = dataset[train_len:]
+    test.drop(labels=["Survived"], axis=1, inplace=True)
 
     # Separate train features and label
-    dataset["Survived"] = dataset["Survived"].astype(int)
-    X_train = dataset.drop(labels=["Survived"], axis=1)
-    Y_train = dataset["Survived"]
+    train["Survived"] = train["Survived"].astype(int)
+    X_train = train.drop(labels=["Survived"], axis=1)
+    Y_train = train["Survived"]
 
-    return X_train, Y_train
+    return X_train, Y_train, test
 
-
+#
 # Temporary main method for debugging
 # Should return pre-processed DataFrame
+
 # def main():
-#     train = load_train_data()
+#     train = pd.read_csv('data/train.csv')
+#
+#
 #
 #     # 'Age', 'Cabin' and 'Embarked' have na values
 #     for col in train:
