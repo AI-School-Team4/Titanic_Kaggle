@@ -85,6 +85,7 @@ for dataset in train_test_data:
 feature_drop = ['Ticket', 'SibSp', 'Parch']
 train = train.drop(feature_drop, axis=1)
 test = test.drop(feature_drop, axis=1)
+
 train = train.drop(['PassengerId'],axis=1)
 train_data = train.drop('Survived', axis=1)
 target = train['Survived']

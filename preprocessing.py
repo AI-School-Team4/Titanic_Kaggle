@@ -4,6 +4,7 @@ from collections import Counter
 
 # headers
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
+from sklearn.model_selection import train_test_split
 
 sex_mapping = {'male':0,'female':1}
 title_mapping = {"Master": 0, "Miss": 1, "Ms": 1, "Mme": 1, "Mlle": 1, "Mrs": 1, "Mr": 2, "Rare": 3}
@@ -144,10 +145,10 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
     # Create a family size descriptor from SibSp and Parch
     dataset["Fsize"] = dataset["SibSp"] + dataset["Parch"] + 1
     # Create new feature of family size
-    dataset['Single'] = dataset['Fsize'].map(lambda s: 1 if s == 1 else 0)
-    dataset['SmallF'] = dataset['Fsize'].map(lambda s: 1 if s == 2 else 0)
-    dataset['MedF'] = dataset['Fsize'].map(lambda s: 1 if 3 <= s <= 4 else 0)
-    dataset['LargeF'] = dataset['Fsize'].map(lambda s: 1 if s >= 5 else 0)
+    dataset['Single'] = dataset['Fsize'].map(lambda x: 1 if x == 1 else 0)
+    dataset['SmallF'] = dataset['Fsize'].map(lambda x: 1 if x == 2 else 0)
+    dataset['MedF'] = dataset['Fsize'].map(lambda x: 1 if 3 <= x <= 4 else 0)
+    dataset['LargeF'] = dataset['Fsize'].map(lambda x: 1 if x >= 5 else 0)
 
 
     ############
@@ -199,20 +200,38 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
 
     return X_train, Y_train, test
 
-#
+
 # Temporary main method for debugging
 # Should return pre-processed DataFrame
 
-# def main():
-#     train = pd.read_csv('data/train.csv')
-#
-#
-#
-#     # 'Age', 'Cabin' and 'Embarked' have na values
-#     for col in train:
-#         if train[col].isna().sum() != 0:
-#             print(col)
-#
-# if __name__ == "__main__":
-#     main()
+def main():
+    train_dataset = pd.read_csv('data/train.csv')
+    test_dataset = pd.read_csv('data/test.csv')
+
+    X_train_processed, Y_train_processed, test_processed = preprocessor(train_dataset, test_dataset,
+                                                                        fill_age_with='median',
+                                                                        fill_cabin_with='mapping_median',
+                                                                        dropPassengerID=True, dropName=True)
+
+    X_train, X_valid, y_train, y_valid = train_test_split(X_train_processed, Y_train_processed, test_size=0.2,
+                                                          random_state=np.random.seed())
+
+
+
+    print(X_train_processed)
+    print('-----------------------------------\n')
+    print(Y_train_processed)
+    print('-----------------------------------\n')
+    print(test_processed.columns)
+    print('-----------------------------------\n')
+    print(X_train)
+    print('-----------------------------------\n')
+    print(X_valid)
+    print('-----------------------------------\n')
+    print(y_train)
+    print('-----------------------------------\n')
+    print(y_valid)
+
+if __name__ == "__main__":
+    main()
 
