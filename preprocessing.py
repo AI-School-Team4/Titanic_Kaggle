@@ -207,34 +207,19 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
 # Temporary main method for debugging
 # Should return pre-processed DataFrame
 
-def main():
-    train_dataset = pd.read_csv('data/train.csv')
-    test_dataset = pd.read_csv('data/test.csv')
-
-    X_train_processed, Y_train_processed, test_processed = preprocessor(train_dataset, test_dataset,
-                                                                        fill_age_with='median',
-                                                                        fill_cabin_with='mapping_median',
-                                                                        dropPassengerID=True, dropName=True)
-
-    X_train, X_valid, y_train, y_valid = train_test_split(X_train_processed, Y_train_processed, test_size=0.2,
-                                                          random_state=np.random.seed())
-
-
-
-    print(X_train_processed)
-    print('-----------------------------------\n')
-    print(Y_train_processed)
-    print('-----------------------------------\n')
-    print(test_processed.columns)
-    print('-----------------------------------\n')
-    print(X_train)
-    print('-----------------------------------\n')
-    print(X_valid)
-    print('-----------------------------------\n')
-    print(y_train)
-    print('-----------------------------------\n')
-    print(y_valid)
-
-if __name__ == "__main__":
-    main()
+# def main():
+#     train_dataset = pd.read_csv('data/train.csv')
+#     test_dataset = pd.read_csv('data/test.csv')
+#
+#     X_train_processed, Y_train_processed, test_processed = preprocessor(train_dataset, test_dataset,
+#                                                                         fill_age_with='median',
+#                                                                         fill_cabin_with='mapping_median',
+#                                                                         dropPassengerID=True, dropName=True)
+#
+#     X_train, X_valid, y_train, y_valid = train_test_split(X_train_processed, Y_train_processed, test_size=0.2,
+#                                                           random_state=np.random.seed())
+#
+#
+# if __name__ == "__main__":
+#     main()
 
