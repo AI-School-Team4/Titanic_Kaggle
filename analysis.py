@@ -89,7 +89,7 @@ def main():
     test_dataset = pd.read_csv("./data/test.csv")
 
     # pre-processing
-    X_train_processed, Y_train_processed, test_processed = preprocessor(train_dataset, test_dataset, fill_age_with='median', fill_cabin_with='mapping_median',
+    X_train_processed, Y_train_processed, test_processed = preprocessor(train_dataset, test_dataset, fill_age_with='advanced_median_1', fill_cabin_with='mapping_median',
                                           dropPassengerID=False, dropName=True)
     # print('xtrain-------------------------\n')
     # print(X_train.head())
