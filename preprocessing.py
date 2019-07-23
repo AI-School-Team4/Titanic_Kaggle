@@ -16,7 +16,7 @@ NA inclued features:
     Age, Cabin, Embarked
 '''
 
-def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=True, dropName=True):
+def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=True, dropName=True, dropTicket=True):
     """
     @:param
     (DataFrame) train DF
@@ -48,46 +48,19 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
     dataset["Fare"] = dataset["Fare"].map(lambda x: np.log(x) if x > 0 else 0)
 
     # TODO : 로그스케일로 바꿨을때 Binning을 한다면 그의 범위를 어떻게 나누면 좋을까
-    '''
-    for data in dataset:
-        data.loc[data['Fare'] <= 17, 'Fare'] = 0,
-        data.loc[(data['Fare'] > 17) & (data['Fare'] <= 30), 'Fare'] = 1,
-        data.loc[(data['Fare'] > 30) & (data['Fare'] <= 100),'Fare'] = 2,
-        data.loc[data['Fare'] > 100, 'Fare'] = 3
-    '''
+
+    # for data in dataset:
+    #     data.loc[data['Fare'] <= 17, 'Fare'] = 0,
+    #     data.loc[(data['Fare'] > 17) & (data['Fare'] <= 30), 'Fare'] = 1,
+    #     data.loc[(data['Fare'] > 30) & (data['Fare'] <= 100),'Fare'] = 2,
+    #     data.loc[data['Fare'] > 100, 'Fare'] = 3
+
 
     ########
     # Sex  #
     ########
     # convert Sex into dict val 0 for male and 1 for female
     dataset["Sex"] = dataset["Sex"].map(sex_mapping)
-
-    ########
-    # Age  #
-    ########
-    # Index of NaN age rows
-    index_to_fill_age = list(dataset["Age"][dataset["Age"].isnull()].index)
-
-    if fill_age_with == 'median':
-        # normal median
-        for i in index_to_fill_age:
-            median_age = dataset["Age"].median()
-            dataset['Age'].iloc[i] = median_age
-
-    elif fill_age_with == 'advanced_median_1':
-        # Fill Age with the median age of similar rows according to Pclass, Parch and SibSp
-        for i in index_to_fill_age:
-            age_med = dataset["Age"].median()
-            age_pred = dataset["Age"][((dataset['SibSp'] == dataset.iloc[i]["SibSp"]) & (dataset['Parch'] == dataset.iloc[i]["Parch"]) & (dataset['Pclass'] == dataset.iloc[i]["Pclass"]))].median()
-            if not np.isnan(age_pred) :
-                dataset['Age'].iloc[i] = age_pred
-            else :
-                dataset['Age'].iloc[i] = age_med
-
-    # TODO : check if it's efficient enough
-    elif fill_age_with == 'advanced_median_2':
-        dataset['Age'].fillna(dataset.groupby('Title')['Age'].transform('median'), inplace=True)
-
 
 
     ########
@@ -111,6 +84,33 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
     if dropName:
         # Drop Name variable
         dataset.drop(labels=["Name"], axis=1, inplace=True)
+
+
+    ########
+    # Age  #
+    ########
+    # Index of NaN age rows
+    index_to_fill_age = list(dataset["Age"][dataset["Age"].isnull()].index)
+
+    if fill_age_with == 'median':
+        # normal median
+        for i in index_to_fill_age:
+            median_age = dataset["Age"].median()
+            dataset['Age'].iloc[i] = median_age
+
+    elif fill_age_with == 'advanced_median_1':
+        # Fill Age with the median age of similar rows according to Pclass, Parch and SibSp
+        for i in index_to_fill_age:
+            age_med = dataset["Age"].median()
+            age_pred = dataset["Age"][((dataset['SibSp'] == dataset.iloc[i]["SibSp"]) & (dataset['Parch'] == dataset.iloc[i]["Parch"]) & (dataset['Pclass'] == dataset.iloc[i]["Pclass"]))].median()
+            if not np.isnan(age_pred):
+                dataset['Age'].iloc[i] = age_pred
+            else :
+                dataset['Age'].iloc[i] = age_med
+
+    # TODO : check if it's efficient enough
+    elif fill_age_with == 'advanced_median_2':
+        dataset['Age'].fillna(dataset.groupby('Title')['Age'].transform('median'), inplace=True)
 
 
     #########
@@ -150,7 +150,6 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
     dataset['MedF'] = dataset['Fsize'].map(lambda x: 1 if 3 <= x <= 4 else 0)
     dataset['LargeF'] = dataset['Fsize'].map(lambda x: 1 if x >= 5 else 0)
 
-
     ############
     # Embarked #
     ############
@@ -164,26 +163,30 @@ def preprocessor(train, test, fill_age_with, fill_cabin_with, dropPassengerID=Tr
     ###########
     # Ticket  #
     ###########
-    # Idea: Extract ticket prefix.
-    # When there is no prefix replace with X
-    Ticket = []
-    for i in list(dataset.Ticket):
-        if not i.isdigit():
-            Ticket.append(i.replace(".", "").replace("/", "").strip().split(' ')[0])  # Take prefix
-        else:
-            Ticket.append("X")
+    if dropTicket:
+        dataset.drop(labels=["Ticket"], axis=1, inplace=True)
 
-    dataset["Ticket"] = pd.Series(Ticket)
+    else:
+        # Idea: Extract ticket prefix.
+        # When there is no prefix replace with X
+        Ticket = []
+        for i in list(dataset.Ticket):
+            if not i.isdigit():
+                Ticket.append(i.replace(".", "").replace("/", "").strip().split(' ')[0])  # Take prefix
+            else:
+                Ticket.append("X")
+
+        dataset["Ticket"] = pd.Series(Ticket)
 
     ###########
     # Dummies #
     ###########
     dataset = pd.get_dummies(dataset, columns=["Title"])
     dataset = pd.get_dummies(dataset, columns=["Embarked"], prefix="Em")
-    dataset = pd.get_dummies(dataset, columns=["Cabin"], prefix="Cabin")
-    dataset = pd.get_dummies(dataset, columns=["Ticket"], prefix="T")
-    dataset["Pclass"] = dataset["Pclass"].astype("category")
-    dataset = pd.get_dummies(dataset, columns=["Pclass"], prefix="Pc")
+    # dataset = pd.get_dummies(dataset, columns=["Cabin"], prefix="Cabin")
+    # dataset = pd.get_dummies(dataset, columns=["Ticket"], prefix="T")
+    # dataset["Pclass"] = dataset["Pclass"].astype("category")
+    # dataset = pd.get_dummies(dataset, columns=["Pclass"], prefix="Pc")
 
     ###########
     # The End #
