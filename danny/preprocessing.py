@@ -6,6 +6,9 @@ from collections import Counter
 # PassengerId, Survived, Pclass, Name, Sex, Age, SibSp, Parch, Ticket, Fare, Cabin, Embarked
 from sklearn.model_selection import train_test_split
 
+def status(feature):
+    print('Processing', feature, ': ok')
+
 sex_mapping = {'male':0,'female':1}
 title_mapping = {"Master": 0, "Miss": 1, "Ms": 1, "Mme": 1, "Mlle": 1, "Mrs": 1, "Mr": 2, "Rare": 3}
 cabin_mapping = {'A':0,'B':0.4,'C':0.8,'D':1.2,'E':1.6,'G':2.4,'T':2.8}

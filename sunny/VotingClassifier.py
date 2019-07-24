@@ -112,5 +112,5 @@ submission = pd.DataFrame({
     'Survived' : prediction
 })
 
-submission.to_csv('submission.csv',index=False)
+submission.to_csv('../submission/vc.csv',index=False)
 

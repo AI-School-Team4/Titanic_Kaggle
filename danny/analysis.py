@@ -1,20 +1,13 @@
-import pandas as pd
-import numpy as np
-import warnings
-
-warnings.filterwarnings("ignore")
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
-from sklearn.model_selection import KFold, cross_val_score
-from sklearn.ensemble import RandomForestClassifier, VotingClassifier
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
-from sklearn.naive_bayes import GaussianNB
-from sklearn.tree import export_graphviz, DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 
 from danny.preprocessing import preprocessor
+import warnings
+warnings.filterwarnings("ignore")
+
+import numpy as np
+import pandas as pd
 
 
 def main():
@@ -41,15 +34,6 @@ def main():
     print("Valid Accuracy is ", accuracy_score(y_valid, gbm_pred) * 100)
     g = GBM.predict(test_processed.drop('PassengerId', axis=1))
 
-    # --------- Lightgbm -----------
-    # lgb = lightgbm()
-    # lgb.fit(X_train, y_train)
-    # print("Train score: {0.2f}", lgb.score(X_train, y_train))
-    # print("Valid score: {0.2f}", lgb.score(X_valid, y_valid))
-    #
-    # lgb_pred = lgb.predict(X_valid)
-    # print("Valid Accuracy is ", accuracy_score(y_valid, lgb_pred) * 100)
-    # l = lgb.predict(test_processed.drop('PassengerId', axis=1))
 
 
     G = pd.DataFrame({
@@ -58,7 +42,7 @@ def main():
     })
 
 
-    G.to_csv('../submission/gbm_cabinX1.csv', index=False)
+    # G.to_csv('../submission/gbm_cabinX1.csv', index=False)
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
