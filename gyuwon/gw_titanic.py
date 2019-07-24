@@ -6,8 +6,8 @@ from sklearn.ensemble import RandomForeastClassifier
 from sklearn.model_selection import KFold, cross_val_score, GridSearchCV
 
 #data load
-train = pd.read_csv('train.csv')
-test = pd.read_csv('test.csv')
+train = pd.read_csv('../data/train.csv')
+test = pd.read_csv('../data/test.csv')
 
 X_train = train.drop(['Survived'], axis=1)
 Y_train = train['Survived']
