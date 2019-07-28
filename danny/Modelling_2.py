@@ -30,7 +30,7 @@ def split_train_test_target():
 
 train, test, targets = split_train_test_target()
 
-clf = RandomForestClassifier(n_estimators=50, max_features='sqrt')
+clf = RandomForestClassifier(n_estimators=150, max_features='sqrt')
 clf = clf.fit(train, targets)
 
 features = pd.DataFrame()
@@ -66,7 +66,7 @@ for model in models:
     print('---------')
 
 # Hyperparameters tuning
-run_gs = False
+run_gs = True
 
 if run_gs:
     parameter_grid = {

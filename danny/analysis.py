@@ -2,7 +2,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import GradientBoostingClassifier
 
-from danny.preprocessing import preprocessor
+from danny.preprocessing_1 import preprocessor
 import warnings
 warnings.filterwarnings("ignore")
 

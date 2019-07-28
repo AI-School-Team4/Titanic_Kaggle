@@ -79,7 +79,7 @@ def main():
 
 
 
-    G.to_csv('gbm_esti50.csv', index=False)
+    G.to_csv('./submission/modelling.csv', index=False)
     # C.to_csv('cat_testing.csv', index=False)
     # X.to_csv('xgboost_testing.csv', index=False)
 

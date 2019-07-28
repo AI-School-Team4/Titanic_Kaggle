@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 from catboost import CatBoostClassifier
 from xgboost import XGBClassifier
 
-from danny.preprocessing import preprocessor
+from danny.preprocessing_1 import preprocessor
 import warnings
 
 warnings.filterwarnings("ignore")
