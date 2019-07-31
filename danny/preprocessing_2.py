@@ -14,7 +14,6 @@ def detect_outliers(df, n, features):
 
     :return
     list of the indices corresponding to the observations containing more than n outliers
-    according to the Tukey method.
     """
     outlier_indices = []
 
@@ -59,7 +58,7 @@ def combining_data():
     train.drop(['Survived'], 1, inplace=True)
 
     # Dropping Outliers
-    outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
+    outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])     # 10개
     train = train.drop(outliers_indices, axis=0).reset_index(drop=True)
 
     # remove PassengerID
@@ -337,13 +336,13 @@ dataset = process_family()
 
 
 
-def main():
-    train = pd.read_csv('../data/train.csv')
-    outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
-    print(outliers_indices)     # [27, 88, 159, 180, 201, 324, 341, 792, 846, 863]
-    print(len(outliers_indices))    # 10
-    print(dataset)
-
-
-if __name__ == '__main__':
-    main()
+# def main():
+#     train = pd.read_csv('../data/train.csv')
+#     outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
+#     print(outliers_indices)     # [27, 88, 159, 180, 201, 324, 341, 792, 846, 863]
+#     print(len(outliers_indices))    # 10
+#     print(dataset)
+#
+#
+# if __name__ == '__main__':
+#     main()

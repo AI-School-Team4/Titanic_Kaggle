@@ -15,14 +15,17 @@ from sklearn.tree import export_graphviz, DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 
 from danny.preprocessing_2 import dataset
+from danny.preprocessing_2 import detect_outliers
 
 def main():
-    train_dataset = pd.read_csv("./data/train.csv")
-    test_dataset = pd.read_csv("./data/test.csv")
+    train_dataset = pd.read_csv("../data/train.csv")
+    test_dataset = pd.read_csv("../data/test.csv")
 
-    X_train_processed = dataset[:891]
-    Y_train_processed = train_dataset['Survived']
-    test_processed = dataset[891:]
+    outliers_indices = detect_outliers(train_dataset, 2, ["Age", "SibSp", "Parch", "Fare"])
+
+    X_train_processed = dataset[:881]
+    Y_train_processed = train_dataset['Survived'].drop(outliers_indices, axis=0).reset_index(drop=True)
+    test_processed = dataset[881:]
 
 
     X_train, X_valid, y_train, y_valid = train_test_split(X_train_processed, Y_train_processed, test_size=0.2,
@@ -30,7 +33,7 @@ def main():
 
 
     # ---------- GradientBoostingClassifier -------------
-    GBM = GradientBoostingClassifier(learning_rate=0.1, n_estimators=50, max_depth=5)
+    GBM = GradientBoostingClassifier(learning_rate=0.1, n_estimators=10, max_depth=5)
     GBM.fit(X_train, y_train)
     print("Train score: {0.2f}", GBM.score(X_train, y_train))
     print("Valid score: {0.2f}", GBM.score(X_valid, y_valid))
@@ -39,15 +42,6 @@ def main():
     print("Valid Accuracy is ", accuracy_score(y_valid, gbm_pred) * 100)
     g = GBM.predict(test_processed)
 
-    # ----------------------- catboost ----------------
-    # cat = CatBoostClassifier()
-    # cat.fit(X_train, y_train)
-    # print("Train score: {0.2f}", cat.score(X_train, y_train))
-    # print("Valid score: {0.2f}", cat.score(X_valid, y_valid))
-    #
-    # cat_pred = cat.predict(X_valid)
-    # # print("Valid Accuracy is ", accuracy_score(y_valid, cat_pred) * 100)
-    # c = cat.predict(test_processed)
 
 
     # ----------------------- xgboost ----------------
@@ -67,10 +61,6 @@ def main():
         'Survived': g
     })
 
-    # C = pd.DataFrame({
-    #     'PassengerId': test_dataset['PassengerId'],
-    #     'Survived': c
-    # })
 
     # X = pd.DataFrame({
     #     'PassengerId': test_dataset['PassengerId'],
@@ -78,10 +68,8 @@ def main():
     # })
 
 
-
-    G.to_csv('./submission/modelling.csv', index=False)
-    # C.to_csv('cat_testing.csv', index=False)
-    # X.to_csv('xgboost_testing.csv', index=False)
+    G.to_csv('../submission/modelling.csv', index=False)
+    # X.to_csv('../submission/xgboost_testing.csv', index=False)
 
 if __name__ == "__main__":
     with warnings.catch_warnings():
