@@ -1,23 +1,66 @@
 import pandas as pd
 import numpy as np
+from collections import Counter
 
 # Check if one feature is preProcessed or not
 def status(feature):
     print('Processing', feature, ': ok')
 
 
+def detect_outliers(df, n, features):
+    """
+    :param
+    Dataframe, n, features (columns)
+
+    :return
+    list of the indices corresponding to the observations containing more than n outliers
+    according to the Tukey method.
+    """
+    outlier_indices = []
+
+    # iterate over features(columns)
+    for col in features:
+        # 1st quartile (25%)
+        Q1 = np.percentile(df[col], 25)
+        # 3rd quartile (75%)
+        Q3 = np.percentile(df[col], 75)
+        # Interquartile range (IQR)
+        IQR = Q3 - Q1
+
+        # outlier step
+        outlier_step = 1.5 * IQR
+
+        # Determine a list of indices of outliers for feature col
+        outlier_list_col = df[(df[col] < Q1 - outlier_step) | (df[col] > Q3 + outlier_step)].index
+
+        # append the found outlier indices for col to the list of outlier indices
+        outlier_indices.extend(outlier_list_col)
+
+    # select observations containing more than 2 outliers
+    outlier_indices = Counter(outlier_indices)
+    multiple_outliers = list(k for k, v in outlier_indices.items() if v > n)
+
+    print(multiple_outliers)
+    return multiple_outliers
+
+
+
 '''
 dataset is a combined data of train and test
-train ==> dataset[:891]
-test  ==> dataset[891:]
+    after dropping outliers
+train ==> dataset[:881]
+test  ==> dataset[881:]
 '''
-
 def combining_data():
-    train = pd.read_csv('./data/train.csv')
-    test = pd.read_csv('./data/test.csv')
+    train = pd.read_csv('../data/train.csv')
+    test = pd.read_csv('../data/test.csv')
 
-    # extracting and then removing the targets from the training data
+    # Dropping Survivors from training set
     train.drop(['Survived'], 1, inplace=True)
+
+    # Dropping Outliers
+    outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
+    train = train.drop(outliers_indices, axis=0).reset_index(drop=True)
 
     # remove PassengerID
     dataset = train.append(test)
@@ -70,7 +113,7 @@ dataset = process_titles()
 ########
 # Age  #
 ########
-grouped_train = dataset.iloc[:891].groupby(['Sex', 'Pclass', 'Title'])
+grouped_train = dataset.iloc[:881].groupby(['Sex', 'Pclass', 'Title'])
 grouped_median_train = grouped_train.median()
 grouped_median_train = grouped_median_train.reset_index()[['Sex', 'Pclass', 'Title', 'Age']]
 
@@ -120,7 +163,7 @@ dataset = process_names()
 def process_fares():
     global dataset
     # Fill one missing fare data with mean
-    dataset.Fare.fillna(dataset.iloc[:891].Fare.mean(), inplace=True)
+    dataset.Fare.fillna(dataset.iloc[:881].Fare.mean(), inplace=True)
     # Log scaled
     dataset["Fare"] = dataset["Fare"].map(lambda x: np.log(x) if x > 0 else 0)
 
@@ -153,13 +196,13 @@ dataset = process_embarked()
 #########
 train_cabin, test_cabin = set(), set()
 
-for c in dataset.iloc[:891]['Cabin']:
+for c in dataset.iloc[:881]['Cabin']:
     try:
         train_cabin.add(c[0])
     except:
         train_cabin.add('U')
 
-for c in dataset.iloc[891:]['Cabin']:
+for c in dataset.iloc[881:]['Cabin']:
     try:
         test_cabin.add(c[0])
     except:
@@ -295,10 +338,11 @@ dataset = process_family()
 
 
 def main():
+    train = pd.read_csv('../data/train.csv')
+    outliers_indices = detect_outliers(train, 2, ["Age", "SibSp", "Parch", "Fare"])
+    print(outliers_indices)     # [27, 88, 159, 180, 201, 324, 341, 792, 846, 863]
+    print(len(outliers_indices))    # 10
     print(dataset)
-    print(dataset.columns)
-    print(dataset['Pc3_male'])
-    print(dataset['Pc1_female'])
 
 
 if __name__ == '__main__':

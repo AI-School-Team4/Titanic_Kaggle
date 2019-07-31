@@ -1,15 +1,11 @@
 import numpy as np
 import pandas as pd
-
-from sklearn.pipeline import make_pipeline
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.feature_selection import SelectKBest
-from sklearn.model_selection import StratifiedKFold
-from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectFromModel
-from sklearn.linear_model import LogisticRegression, LogisticRegressionCV
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_val_score
 
 from danny.preprocessing_2 import dataset
 
@@ -21,9 +17,9 @@ def compute_score(clf, X, y, scoring='accuracy'):
 def split_train_test_target():
     global dataset
 
-    targets = pd.read_csv('./data/train.csv', usecols=['Survived'])['Survived'].values
-    train = dataset.iloc[:891]
-    test = dataset.iloc[891:]
+    targets = pd.read_csv('../data/train.csv', usecols=['Survived'])['Survived'].values
+    train = dataset.iloc[:881]
+    test = dataset.iloc[881:]
 
     return train, test, targets
 
@@ -106,28 +102,10 @@ else:
 # Outputting
 output = model.predict(test).astype(int)
 df_output = pd.DataFrame()
-test_data = pd.read_csv('./data/test.csv')
+test_data = pd.read_csv('../data/test.csv')
 df_output['PassengerId'] = test_data['PassengerId']
 df_output['Survived'] = output
-df_output[['PassengerId','Survived']].to_csv('gboost_gs.csv', index=False)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+df_output[['PassengerId','Survived']].to_csv('../submission/gboost_gs.csv', index=False)
 
 
 
